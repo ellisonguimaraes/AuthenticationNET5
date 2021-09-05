@@ -8,6 +8,7 @@ using AuthProject.Services.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using AuthProject.Models;
 
 namespace AuthProject.Services
 {
@@ -20,7 +21,7 @@ namespace AuthProject.Services
             _configuration = configuration;
         }
 
-        public string GenerateAccessToken(IEnumerable<Claim> claims)
+        public string GenerateAccessToken(User user)
         {
             
             // Pegando a Secret do appsettings.json
@@ -28,6 +29,12 @@ namespace AuthProject.Services
             
             // Definindo signincredentials
             SigningCredentials signingCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
+
+            // Definindo as Claims
+            List<Claim> claims = new List<Claim>{
+                new Claim(ClaimTypes.Name, user.Email),
+                new Claim(ClaimTypes.Role, user.Role)
+            };
 
             // Configurando a descrição do token
             var tokenDescriptor = new SecurityTokenDescriptor{

@@ -15,6 +15,7 @@ CREATE TABLE `users` (
 	`id` INT(11) NOT NULL AUTO_INCREMENT,
 	`email` VARCHAR(100) NOT NULL DEFAULT '0',
 	`password` VARCHAR(130) NOT NULL DEFAULT '0',
+	`role` VARCHAR(30) NOT NULL DEFAULT '0',
 	`refresh_token` VARCHAR(500) NULL DEFAULT '0',
 	`refresh_token_expiry_time` DATETIME NULL DEFAULT NULL,
 	PRIMARY KEY (`id`),
@@ -22,18 +23,32 @@ CREATE TABLE `users` (
 )
 ENGINE=InnoDB DEFAULT CHARSET=LATIN1;
 
-INSERT INTO `users` (`email`, `password`, `refresh_token`, `refresh_token_expiry_time`) VALUES
-('ellison.guimaraes@gmail.com', '24-0B-E5-18-FA-BD-27-24-DD-B6-F0-4E-EB-1D-A5-96-74-48-D7-E8-31-C0-8C-8F-A8-22-80-9F-74-C7-20-A9', 'h9lzVOoLlBoTbcQrh/e16/aIj+4p6C67lLdDbBRMsjE=', '2020-09-27 17:30:49');
+INSERT INTO `users` (`email`, `password`, `role`, `refresh_token`, `refresh_token_expiry_time`) VALUES
+('ellison.guimaraes@gmail.com', '24-0B-E5-18-FA-BD-27-24-DD-B6-F0-4E-EB-1D-A5-96-74-48-D7-E8-31-C0-8C-8F-A8-22-80-9F-74-C7-20-A9', 'admin', 'h9lzVOoLlBoTbcQrh/e16/aIj+4p6C67lLdDbBRMsjE=', '2020-09-27 17:30:49');
+
+INSERT INTO `users` (`email`, `password`, `role`, `refresh_token`, `refresh_token_expiry_time`) VALUES 
+('guilguimaraes2019@gmail.com', '24-0B-E5-18-FA-BD-27-24-DD-B6-F0-4E-EB-1D-A5-96-74-48-D7-E8-31-C0-8C-8F-A8-22-80-9F-74-C7-20-A9', 'normal', '', '2021-09-11 13:04:22');
 ```
 
-> A senha está criptografada com SHA256 e nesse caso é `admin123`. Segue JSON:
+> A senha está criptografada com SHA256 e nesse caso é `admin123`. Segue JSON do usuário `Role = "admin"`:
 >
 > ```json
 > {
->     "email": "ellison.guimaraes@gmail.com",
->     "password": "admin123"
+> 	"email": "ellison.guimaraes@gmail.com",
+> 	"password": "admin123"
 > }
 > ```
+>
+> Também tem o usuário com `Role = "normal"`:
+>
+> ```
+> {
+> 	"email": "guilguimaraes2019@gmail.com",
+> 	"password": "admin123"
+> }
+> ```
+>
+> 
 
 E também a configuração da *ConnectionString* no `appsettings.json` é essencial:
 
@@ -115,7 +130,7 @@ Falaremos sobre alguns diretórios:
 - O diretório ==Services== contém os serviços relacionados a geração de token. Nele contém:
     - Diretório de interfaces que contém a interface `ITokenService`;
     - A implementação de `ITokenService`, o `TokenService`. Nele a métodos como:
-        - `string GenerateAccessToken(IEnumerable<Claim> claims)` que gera um novo **Token de Acesso** (`AccessToken`). Ele recebe uma lista de `Claim`;
+        - `string GenerateAccessToken(IEnumerable<Claim> claims)` que gera um novo **Token de Acesso** (`AccessToken`);
         - `string GenerateRefreshToken()` que gera um novo **RefreshToken**;
         - `ClaimsPrincipal GetPrincipalFromExpiredToken(string token)` retorna as `ClaimsPrincipal` com base no token. Ele é usado no `LoginBusiness` pelo método `TokenDTO ValidateCredentials(TokenDTO token)` que recebe um **token**, ou seja, ao realizar um **RefreshToken**.
 - O diretório ==Models== que contém os modelos usados no programa. Dentro dele temos:
@@ -199,3 +214,38 @@ Value: 	Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyMWVhYjRkOWNjOGM0
 Onde o Value é a palavra `"Bearer {{AccessToken}}"`.
 
 Se sucesso é retornado um 204(**No Content**).
+
+## VerifyAdmin
+
+É usado na rota ==localhost:5000/api/auth/verifyadmin/==, e para que seja possível o acesso, é necessário estar logado e que a **Role** seja `admin`. É necessário informar a autenticação no **HEADER Params** também:
+
+```
+Key: 	Authorization
+Value: 	Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyMWVhYjRkOWNjOGM0ODM4YTM3MjQ4YWQzZTEyODVmNCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJlbGxpc29uLmd1aW1hcmFlc0BnbWFpbC5jb20iLCJleHAiOjE2MzA3MjUyNjIsImlzcyI6Iklzc3VlckF1dGgiLCJhdWQiOlsiQXVkaWVuY2VBdXRoIiwiQXVkaWVuY2VBdXRoIl19.82veWwA8WJA1wKG0at1ybmXUshqK0w3pnHiFLUvnKTo
+```
+
+Retorna um JSON se o usuário estiver autenticado e `Role = "admin"`:
+
+```C#
+{
+    "message": "You is Admin!"
+}
+```
+
+## VerifyNormal
+
+É usado na rota ==localhost:5000/api/auth/verifynormal/==, e para que seja possível o acesso, é necessário estar logado e que a **Role** seja `normal`. É necessário informar a autenticação no **HEADER Params** também:
+
+```
+Key: 	Authorization
+Value: 	Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIyMWVhYjRkOWNjOGM0ODM4YTM3MjQ4YWQzZTEyODVmNCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJlbGxpc29uLmd1aW1hcmFlc0BnbWFpbC5jb20iLCJleHAiOjE2MzA3MjUyNjIsImlzcyI6Iklzc3VlckF1dGgiLCJhdWQiOlsiQXVkaWVuY2VBdXRoIiwiQXVkaWVuY2VBdXRoIl19.82veWwA8WJA1wKG0at1ybmXUshqK0w3pnHiFLUvnKTo
+```
+
+Retorna um JSON se o usuário estiver autenticado e `Role = "normal"`:
+
+```C#
+{
+    "message": "You is Normal!"
+}
+```
+

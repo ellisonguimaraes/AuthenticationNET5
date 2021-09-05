@@ -67,16 +67,6 @@ namespace AuthProject
                 };
             });
 
-            /////////////////////////////////
-            // Authorization Configuration //
-            /////////////////////////////////
-            /*
-            services.AddAuthorization(auth => {
-                auth.AddPolicy("Bearer", new AuthorizationPolicyBuilder()
-                            .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
-                            .RequireAuthenticatedUser().Build());
-            });*/
-
             services.AddControllers();
 
             // Configure Context DB

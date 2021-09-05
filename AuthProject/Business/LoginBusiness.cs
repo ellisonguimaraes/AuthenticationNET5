@@ -33,14 +33,8 @@ namespace AuthProject.Business
 
             if (user == null) return null;
 
-            // Definindo as Claims
-            List<Claim> claims = new List<Claim>{
-                new Claim(ClaimTypes.Name, user.Email),
-                new Claim(ClaimTypes.Role, user.Role)
-            };
-
             // Obtendo o Token de Acesso e o RefreshToken
-            string accessToken = _tokenService.GenerateAccessToken(claims);
+            string accessToken = _tokenService.GenerateAccessToken(user);
             string refreshToken = _tokenService.GenerateRefreshToken();
 
             // Gerando as datas de criação e expiração do Token de Acesso
@@ -80,7 +74,7 @@ namespace AuthProject.Business
                 return null;
 
             // Gerando novos Tokens
-            accessToken = _tokenService.GenerateAccessToken(principal.Claims);
+            accessToken = _tokenService.GenerateAccessToken(user);
             refreshToken = _tokenService.GenerateRefreshToken();
 
             // Gerando as datas de criação e expiração do Token de Acesso
