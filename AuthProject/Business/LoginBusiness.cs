@@ -33,9 +33,10 @@ namespace AuthProject.Business
 
             if (user == null) return null;
 
+            // Definindo as Claims
             List<Claim> claims = new List<Claim>{
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString("N")),
-                new Claim(JwtRegisteredClaimNames.UniqueName, user.Email)
+                new Claim(ClaimTypes.Name, user.Email),
+                new Claim(ClaimTypes.Role, user.Role)
             };
 
             // Obtendo o Token de Acesso e o RefreshToken

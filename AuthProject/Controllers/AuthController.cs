@@ -37,9 +37,9 @@ namespace AuthProject.Controllers
             return Ok(token);
         }
 
+        [Authorize]
         [HttpGet]
         [Route("revoke")]
-        [Authorize("Bearer")]
         public IActionResult Revoke()
         {
             string email = User.Identity.Name;
@@ -48,6 +48,26 @@ namespace AuthProject.Controllers
             if (!result) return BadRequest("Invalid client request");
 
             return NoContent();
+        }
+    
+        [Authorize(Roles = "admin")]
+        [HttpGet]
+        [Route("verifyadmin")]
+        public IActionResult VerifyAdmin()
+        {
+            return Ok(new {
+                message = "You is Admin!"
+            });
+        }
+
+        [Authorize(Roles = "normal")]
+        [HttpGet]
+        [Route("verifynormal")]
+        public IActionResult VerifyNormal()
+        {
+            return Ok(new {
+                message = "You is Normal!"
+            });
         }
     }
 }

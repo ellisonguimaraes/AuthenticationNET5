@@ -16,6 +16,9 @@ namespace AuthProject.Models
 
         [Column("password")]
         public string Password { get; set; }
+
+        [Column("role")]
+        public string Role{ get; set; }
         
         [Column("refresh_token")]
         public string RefreshToken { get; set; }

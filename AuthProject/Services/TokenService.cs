@@ -7,6 +7,7 @@ using AuthProject.Models.Configuration;
 using AuthProject.Services.Interfaces;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 
 namespace AuthProject.Services
 {
@@ -21,25 +22,28 @@ namespace AuthProject.Services
 
         public string GenerateAccessToken(IEnumerable<Claim> claims)
         {
+            
             // Pegando a Secret do appsettings.json
             SymmetricSecurityKey secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration.Secret));
             
             // Definindo signincredentials
             SigningCredentials signingCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
-        
-            // Definindo options
-            JwtSecurityToken options = new JwtSecurityToken(
-                issuer: _configuration.Issuer,
-                audience: _configuration.Audience,
-                claims: claims,
-                expires: DateTime.Now.AddMinutes(_configuration.Minutes),
-                signingCredentials: signingCredentials
-            );
 
-            // Gerando o Token baseado nas options
-            string token = new JwtSecurityTokenHandler().WriteToken(options);
+            // Configurando a descrição do token
+            var tokenDescriptor = new SecurityTokenDescriptor{
+                Subject = new ClaimsIdentity(claims),
+                Audience = _configuration.Audience,
+                Issuer = _configuration.Issuer,
+                Expires = DateTime.UtcNow.AddMinutes(_configuration.Minutes),
+                SigningCredentials = signingCredentials
+            };
 
-            return token;
+            // Gerando token
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            
+            // Retornando o token em string
+            return tokenHandler.WriteToken(token);
         }
 
         public string GenerateRefreshToken()

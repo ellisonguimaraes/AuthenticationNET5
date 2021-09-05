@@ -70,11 +70,12 @@ namespace AuthProject
             /////////////////////////////////
             // Authorization Configuration //
             /////////////////////////////////
+            /*
             services.AddAuthorization(auth => {
                 auth.AddPolicy("Bearer", new AuthorizationPolicyBuilder()
                             .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
                             .RequireAuthenticatedUser().Build());
-            });
+            });*/
 
             services.AddControllers();
 
@@ -109,6 +110,8 @@ namespace AuthProject
 
             app.UseRouting();
 
+            // Usando Autenticação e Autorização
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
